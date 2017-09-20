@@ -54,7 +54,12 @@ typedef enum {
     ConvGetNormal,
     ConvGetHidden,
     ConvPutInfo,
-    ConvPutError
+    ConvPutError,
+    ConvPutAuthSucceeded,
+    ConvPutAuthFailed,
+    ConvPutAuthError,
+    ConvPutAuthAbort,
+    ConvPutReadyForAuthentication
 } ConvRequest;
 
 /* these must match the defs in kgreeterplugin.h */

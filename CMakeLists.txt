@@ -1,4 +1,4 @@
-set(PROJECT_VERSION "5.9.90")
+set(PROJECT_VERSION "5.11.90")
 set(PROJECT_VERSION_MAJOR 5)
 
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
@@ -32,6 +32,20 @@ endif ()
 add_feature_info("prctl/procctl tracing control"
                  CAN_DISABLE_PTRACE
                  "Required for disallowing ptrace on greeter and kcheckpass process")
+
+check_include_file("sys/signalfd.h" HAVE_SIGNALFD_H)
+if (NOT HAVE_SIGNALFD_H)
+    check_include_files("sys/types.h;sys/event.h" HAVE_EVENT_H)
+endif ()
+if (NOT (HAVE_SIGNALFD_H OR HAVE_EVENT_H))
+    message(FATAL_ERROR "kcheckpass either needs signalfd() or kevent()&sigtimedwait() to work")
+endif ()
+add_feature_info("sys/signalfd.h"
+                 HAVE_SIGNALFD_H
+                 "Use the signalfd() api for signalhandling")
+add_feature_info("sys/event.h"
+                 HAVE_EVENT_H
+                 "Use the kevent() and sigwaitinfo() api for signalhandling")
 
 find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
                     Crash
@@ -79,6 +93,16 @@ set_package_properties(loginctl PROPERTIES
     )
 
 option(PAM_REQUIRED "Require building with PAM" ON)
+
+find_package(Seccomp)
+set_package_properties(Seccomp PROPERTIES
+    TYPE
+        OPTIONAL
+    PURPOSE
+        "Used for putting the look'n'feel package in the greeter into a sandbox."
+)
+set(HAVE_SECCOMP ${Seccomp_FOUND})
+
 include(ConfigureChecks.cmake)
 
 configure_file(config-workspace.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-workspace.h)

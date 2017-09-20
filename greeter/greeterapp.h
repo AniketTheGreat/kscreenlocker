@@ -67,11 +67,15 @@ public:
     void updateCanSuspend(bool set);
     void updateCanHibernate(bool set);
 
+    bool supportsSeccomp() const {
+        return m_supportsSeccomp;
+    }
+
 public Q_SLOTS:
     void desktopResized();
 
 protected:
-    virtual bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
     void resetRequestIgnore();
@@ -86,6 +90,7 @@ private:
     void initializeWayland();
     void shareEvent(QEvent *e, KQuickAddons::QuickViewSharedEngine *from);
     void loadWallpaperPlugin(KQuickAddons::QuickViewSharedEngine *view);
+    Authenticator *createAuthenticator();
 
     QString m_packageName;
     QUrl m_mainQmlPath;
@@ -112,6 +117,7 @@ private:
 
     KWayland::Client::PlasmaShell *m_plasmaShell = nullptr;
     WallpaperIntegration *m_wallpaperIntegration;
+    bool m_supportsSeccomp = false;
 };
 } // namespace
 
